@@ -22,7 +22,6 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsListener {
-    private val REQ_CODE_SPEECH_INPUT = 100
     private lateinit var mSpeechRecognizer: SpeechRecognizer
     private lateinit var mSpeechRecognizerIntent: Intent
     private val mIslistening = false
@@ -32,6 +31,7 @@ class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsLi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        CheckPermission()
         wifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
         mSpeechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
@@ -43,11 +43,16 @@ class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsLi
             RecognizerIntent.EXTRA_CALLING_PACKAGE,
             this.packageName
         )
-
+        if (!mIslistening) {
+            mSpeechRecognizer.startListening(mSpeechRecognizerIntent);
+        }else{
+            mSpeechRecognizer.startListening(mSpeechRecognizerIntent);
+        }
         btn.performClick()
         val listener = SpeechRecognitionListener(this)
         mSpeechRecognizer.setRecognitionListener(listener)
         btn.setOnClickListener {
+            CheckPermission()
             if (!mIslistening) {
                 mSpeechRecognizer.startListening(mSpeechRecognizerIntent);
             }
@@ -61,6 +66,11 @@ class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsLi
                 val callIntent = Intent(Intent.ACTION_CALL)
                 callIntent.data = Uri.parse("tel:+919633107311")
                 startActivity(callIntent)
+            }
+            "call" -> {
+                val intent = Intent(Intent.ACTION_DIAL)
+                intent.data = Uri.parse("tel:")
+                startActivity(intent)
             }
             "off Wi-Fi" -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
