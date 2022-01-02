@@ -9,12 +9,15 @@ import androidx.room.Query
 interface RegisterDatabaseDao {
 
     @Insert
-    suspend fun insert(register: RegisterModel)
+     fun insert(register: RegisterModel)
 
-    @Query("SELECT * FROM Register_users_table ORDER BY userId DESC")
-    fun getAllUsers(): LiveData<List<RegisterModel>>
+//    @Query("SELECT * FROM Register_users_table ORDER BY userId DESC")
+//    fun getAllUsers(): LiveData<List<RegisterModel>>
 
     @Query("SELECT * FROM Register_users_table WHERE email LIKE :email")
-    suspend fun getUsername(email: String): RegisterModel?
+     fun getUser(email: String): RegisterModel?
+
+//    @Query("select * from Register_users_table")
+//    fun getDetails(): LiveData<List<RegisterModel?>?>?
 
 }

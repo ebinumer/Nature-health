@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Nature Health</string>
+    <string name="logoutTitle">Logout</string>
+    <string name="logoutMessage">Are you sure to logout ?</string>
 </resources>

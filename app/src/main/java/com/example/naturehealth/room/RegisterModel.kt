@@ -6,12 +6,13 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "Register_users_table")
 data class RegisterModel(
-    @PrimaryKey(autoGenerate = true)
+//    autoGenerate = true
     var userId: Int = 0,
 
     @ColumnInfo(name = "username")
     var userName: String,
 
+    @PrimaryKey
     @ColumnInfo(name = "email")
     var email: String,
 

@@ -25,8 +25,10 @@ class SplashActivity : AppCompatActivity() {
     private fun login() {
         if (mSessionManager.appOpenStatus) {
             startActivity(Intent(this, MainActivity::class.java))
+            finish()
         } else {
             startActivity(Intent(this, LoginActivity::class.java))
+            finish()
         }
     }
 }
