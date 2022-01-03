@@ -1,5 +1,6 @@
 package com.example.naturehealth.service
 
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.media.MediaPlayer
@@ -8,6 +9,7 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.util.Log
 import android.widget.Toast
+import com.example.naturehealth.SplashActivity
 import com.example.naturehealth.home.ResultInterface
 import com.example.naturehealth.home.SpeechRecognitionListener
 
@@ -67,11 +69,14 @@ Toast.makeText(this,"ser",Toast.LENGTH_SHORT).show()
     }
 
     override fun resultData(data: String) {
-Log.e("speech","hit here$data")
+Log.e("speech","hit here====$data")
         if(data=="start"){
-        val myIntent = Intent()
-        myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        applicationContext.startActivity(myIntent)
-    }
+            var intent: Intent?=null
+            intent = Intent(this, SplashActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+         startActivity(intent)
+
+        }
     }
 }

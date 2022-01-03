@@ -75,10 +75,10 @@ class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsLi
         val listener = SpeechRecognitionListener(this)
         mSpeechRecognizer.setRecognitionListener(listener)
         btn.setOnClickListener {
-//            startService(Intent(this, SpeechService::class.java))
+            startService(Intent(this, SpeechService::class.java))
 //            t1?.speak("How Can I help You",TextToSpeech.QUEUE_FLUSH,null,null);
             CheckPermission()
-            callRecord()
+//            callRecord()
         }
         btnLogout.setOnClickListener {
             logoutDialog()
