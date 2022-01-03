@@ -24,6 +24,12 @@ import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import kotlinx.android.synthetic.main.activity_main.*
+import android.R.string.no
+import android.media.AudioManager
+import android.speech.tts.TextToSpeech.OnInitListener
+import com.example.naturehealth.service.SpeechService
+import java.util.*
+
 
 class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsListener{
     private lateinit var mSpeechRecognizer: SpeechRecognizer
@@ -33,11 +39,17 @@ class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsLi
     private lateinit var mTTS: TextToSpeech
     lateinit var wifiManager: WifiManager
     private var grantallpermission= false
+    var t1: TextToSpeech? = null
+    lateinit var audio:AudioManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         mSessionManager= SessionManager(this)
         CheckPermission()
+//        startService(Intent(this, SpeechService::class.java))
+
+
+
         wifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
         mSpeechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
@@ -49,25 +61,34 @@ class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsLi
             RecognizerIntent.EXTRA_CALLING_PACKAGE,
             this.packageName
         )
-        val timer = object: CountDownTimer(800, 500) {
-            override fun onTick(millisUntilFinished: Long) {
-                callRecord()
-            }
-            override fun onFinish() {
-                this.start()
-            }
-        }
-        timer.start()
+//        val timer = object: CountDownTimer(800, 500) {
+//            override fun onTick(millisUntilFinished: Long) {
+//                callRecord()
+//            }
+//            override fun onFinish() {
+//                this.start()
+//            }
+//        }
+//        timer.start()
 
-        btn.performClick()
+
         val listener = SpeechRecognitionListener(this)
         mSpeechRecognizer.setRecognitionListener(listener)
         btn.setOnClickListener {
+//            startService(Intent(this, SpeechService::class.java))
+//            t1?.speak("How Can I help You",TextToSpeech.QUEUE_FLUSH,null,null);
             CheckPermission()
             callRecord()
         }
         btnLogout.setOnClickListener {
             logoutDialog()
+        }
+        t1 = TextToSpeech(
+            applicationContext
+        ) { status ->
+            if (status != TextToSpeech.ERROR) {
+                t1!!.language = Locale.UK
+            }
         }
     }
      fun callRecord(){
@@ -77,54 +98,34 @@ class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsLi
       }
     override fun resultData(data: String) {
         txt.text=data
-        when (data) {
-            "call doctor" -> {
-                val callIntent = Intent(Intent.ACTION_CALL)
-                callIntent.data = Uri.parse("tel:+919633107311")
-                startActivity(callIntent)
-            }
-            "call" -> {
-                val intent = Intent(Intent.ACTION_DIAL)
-                intent.data = Uri.parse("tel:")
-                startActivity(intent)
-            }
-            "off Wi-Fi" -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val panelIntent = Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
-                    startActivityForResult(panelIntent, 0)
-                } else {
-                    // add appropriate permissions to AndroidManifest file (see https://stackoverflow.com/questions/3930990/android-how-to-enable-disable-wifi-or-internet-connection-programmatically/61289575)
-                    (this.applicationContext?.getSystemService(Context.WIFI_SERVICE) as? WifiManager)?.apply {
-                        isWifiEnabled = true /*or false*/
-                    }
+        if(data=="call doctor"){
+            val callIntent = Intent(Intent.ACTION_CALL)
+            callIntent.data = Uri.parse("tel:+919633107311")
+            startActivity(callIntent)
+        }
+        else if (data=="off Wi-Fi" || data=="on Wi-Fi" || data=="off wifi" || data=="on wifi" || data=="wifi" || data=="Wi-Fi"){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val panelIntent = Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
+                startActivityForResult(panelIntent, 0)
+            } else {
+                // add appropriate permissions to AndroidManifest file (see https://stackoverflow.com/questions/3930990/android-how-to-enable-disable-wifi-or-internet-connection-programmatically/61289575)
+                (this.applicationContext?.getSystemService(Context.WIFI_SERVICE) as? WifiManager)?.apply {
+                    isWifiEnabled = true /*or false*/
                 }
-                wifiManager.isWifiEnabled = false
-            }
-            "on wifi" -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val panelIntent = Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
-                    startActivityForResult(panelIntent, 0)
-                } else {
-                    // add appropriate permissions to AndroidManifest file (see https://stackoverflow.com/questions/3930990/android-how-to-enable-disable-wifi-or-internet-connection-programmatically/61289575)
-                    (this.applicationContext?.getSystemService(Context.WIFI_SERVICE) as? WifiManager)?.apply {
-                        isWifiEnabled = true /*or false*/
-                    }
-                }
-                wifiManager.isWifiEnabled = true
-            }
-            "on Wi-Fi" ->{
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val panelIntent = Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
-                    startActivityForResult(panelIntent, 0)
-                } else {
-                    // add appropriate permissions to AndroidManifest file (see https://stackoverflow.com/questions/3930990/android-how-to-enable-disable-wifi-or-internet-connection-programmatically/61289575)
-                    (this.applicationContext?.getSystemService(Context.WIFI_SERVICE) as? WifiManager)?.apply {
-                        isWifiEnabled = true /*or false*/
-                    }
-                }
-                wifiManager.isWifiEnabled = true
             }
         }
+        else if(data=="call"){
+            val intent = Intent(Intent.ACTION_DIAL)
+            intent.data = Uri.parse("tel:")
+            startActivity(intent)
+        }
+        else if ( data=="map" || data =="google map" || data == "open map"){
+            val navigationIntentUri = Uri.parse("google.navigation:q=" + 12f + "," + 2f)
+            val mapIntent = Intent(Intent.ACTION_VIEW, navigationIntentUri)
+            mapIntent.setPackage("com.google.android.apps.maps")
+            startActivity(mapIntent)
+        }
+
 
     }
 
