@@ -25,10 +25,7 @@ class SpeechService  : Service(), ResultInterface {
     // execution of service will start
     // on calling this method
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-
-        Toast.makeText(this, "ser", Toast.LENGTH_SHORT).show()
         mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
-
         mSpeechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         mSpeechRecognizerIntent.putExtra(
             RecognizerIntent.EXTRA_LANGUAGE_MODEL,
