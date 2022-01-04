@@ -18,9 +18,9 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
+        val amanager = getSystemService(AUDIO_SERVICE) as AudioManager
+        amanager.setStreamMute(AudioManager.STREAM_NOTIFICATION, false)
         mSessionManager = SessionManager(this)
-//        val amanager = getSystemService(AUDIO_SERVICE) as AudioManager
-//        amanager.setStreamMute(AudioManager.STREAM_NOTIFICATION, true)
         Handler(Looper.getMainLooper()).postDelayed({
             login()
         }, 3000)

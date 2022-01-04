@@ -26,7 +26,7 @@ class SpeechRecognitionListener(val mInterface: ResultInterface): RecognitionLis
     }
 
     override fun onEndOfSpeech() {
-
+        Log.e(TAG, "onError end")
     }
 
     override fun onError(error: Int) {

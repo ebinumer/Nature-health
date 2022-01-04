@@ -9,15 +9,16 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.util.Log
 import android.widget.Toast
-import com.example.naturehealth.SplashActivity
 import com.example.naturehealth.home.ResultInterface
 import com.example.naturehealth.home.SpeechRecognitionListener
+import com.example.naturehealth.SplashActivity
+import java.util.*
 
 
 class SpeechService  : Service(), ResultInterface {
-
     // declaring object of MediaPlayer
-    private lateinit var player:MediaPlayer
+    private var mTimer: CountDownTimer? = null
+    private lateinit var player: MediaPlayer
     private lateinit var mSpeechRecognizer: SpeechRecognizer
     private lateinit var mSpeechRecognizerIntent: Intent
 
@@ -25,7 +26,7 @@ class SpeechService  : Service(), ResultInterface {
     // on calling this method
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
 
-Toast.makeText(this,"ser",Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "ser", Toast.LENGTH_SHORT).show()
         mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
 
         mSpeechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
@@ -40,15 +41,16 @@ Toast.makeText(this,"ser",Toast.LENGTH_SHORT).show()
         mSpeechRecognizer.startListening(mSpeechRecognizerIntent)
         val listener = SpeechRecognitionListener(this)
         mSpeechRecognizer.setRecognitionListener(listener)
-                val timer = object: CountDownTimer(800, 500) {
+        mTimer = object : CountDownTimer(800, 500) {
             override fun onTick(millisUntilFinished: Long) {
                 mSpeechRecognizer.startListening(mSpeechRecognizerIntent)
             }
+
             override fun onFinish() {
                 this.start()
             }
         }
-        timer.start()
+        (mTimer as CountDownTimer).start()
         return START_NOT_STICKY
     }
 
@@ -56,11 +58,13 @@ Toast.makeText(this,"ser",Toast.LENGTH_SHORT).show()
     // stop on calling this method
     override fun onDestroy() {
         super.onDestroy()
+        Log.e("hit at", "onDestroy")
         mSpeechRecognizer.cancel()
         mSpeechRecognizer.destroy();
         // stopping the process
 
     }
+
 
 //    start
 
@@ -69,14 +73,26 @@ Toast.makeText(this,"ser",Toast.LENGTH_SHORT).show()
     }
 
     override fun resultData(data: String) {
-Log.e("speech","hit here====$data")
-        if(data=="start"){
-            var intent: Intent?=null
-            intent = Intent(this, SplashActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            }
-         startActivity(intent)
+        Log.e("speech", "hit here====$data")
+        if (data == "ok") {
+            Log.e("speech", "hit here====$data")
+            (mTimer as CountDownTimer).cancel()
+            mSpeechRecognizer.stopListening()
+            mSpeechRecognizer.stopListening()
+            mSpeechRecognizer.cancel()
+            mSpeechRecognizer.destroy()
+            this.stopSelf()
+            val bringToForegroundIntent = Intent(this, SplashActivity::class.java)
+            bringToForegroundIntent.flags =
+                Intent.FLAG_ACTIVITY_CLEAR_TOP
+            bringToForegroundIntent.flags =
+                Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(bringToForegroundIntent)
 
         }
+
     }
+
+
+
 }

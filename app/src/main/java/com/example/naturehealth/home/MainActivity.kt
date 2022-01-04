@@ -31,24 +31,62 @@ import com.example.naturehealth.service.SpeechService
 import java.util.*
 
 
-class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsListener{
+class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsListener {
     private lateinit var mSpeechRecognizer: SpeechRecognizer
     private lateinit var mSpeechRecognizerIntent: Intent
     private val mIslistening = false
     lateinit var mSessionManager: SessionManager
-    private lateinit var mTTS: TextToSpeech
     lateinit var wifiManager: WifiManager
-    private var grantallpermission= false
+    private var grantallpermission = false
     var t1: TextToSpeech? = null
-    lateinit var audio:AudioManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        mSessionManager= SessionManager(this)
+        mSessionManager = SessionManager(this)
+        t1 = TextToSpeech(
+            applicationContext
+        ) { status ->
+            if (status != TextToSpeech.ERROR) {
+                t1!!.language = Locale.UK
+            }
+        }
+        initUi()
+        btnClick()
         CheckPermission()
-//        startService(Intent(this, SpeechService::class.java))
+
+    }
+
+    private fun btnClick() {
+        btn_start.setOnClickListener {
+            val amanager = getSystemService(AUDIO_SERVICE) as AudioManager
+            amanager.setStreamMute(AudioManager.STREAM_NOTIFICATION, true)
+            startService(Intent(this, SpeechService::class.java))
+            Toast.makeText(this, "app started", Toast.LENGTH_LONG).show()
+            onBackPressed()
+        }
 
 
+        btn.setOnClickListener {
+            if (grantallpermission) {
+                callRecord()
+            } else {
+                CheckPermission()
+            }
+        }
+        btnLogout.setOnClickListener {
+            logoutDialog()
+        }
+
+    }
+
+    private fun initUi() {
+
+        CheckPermission()
+        val amanager = getSystemService(AUDIO_SERVICE) as AudioManager
+        amanager.setStreamMute(AudioManager.STREAM_NOTIFICATION, false)
+        if (grantallpermission) {
+            audioWelcome()
+        }
 
         wifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
@@ -61,49 +99,35 @@ class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsLi
             RecognizerIntent.EXTRA_CALLING_PACKAGE,
             this.packageName
         )
-//        val timer = object: CountDownTimer(800, 500) {
-//            override fun onTick(millisUntilFinished: Long) {
-//                callRecord()
-//            }
-//            override fun onFinish() {
-//                this.start()
-//            }
-//        }
-//        timer.start()
-
-
         val listener = SpeechRecognitionListener(this)
         mSpeechRecognizer.setRecognitionListener(listener)
-        btn.setOnClickListener {
-            startService(Intent(this, SpeechService::class.java))
-//            t1?.speak("How Can I help You",TextToSpeech.QUEUE_FLUSH,null,null);
-            CheckPermission()
-//            callRecord()
-        }
-        btnLogout.setOnClickListener {
-            logoutDialog()
-        }
-        t1 = TextToSpeech(
-            applicationContext
-        ) { status ->
-            if (status != TextToSpeech.ERROR) {
-                t1!!.language = Locale.UK
-            }
+        mSpeechRecognizer.stopListening()
+    }
+
+    fun callRecord() {
+        if (!mIslistening) {
+            mSpeechRecognizer.startListening(mSpeechRecognizerIntent);
         }
     }
-     fun callRecord(){
-     if (!mIslistening) {
-         mSpeechRecognizer.startListening(mSpeechRecognizerIntent);
-     }
-      }
+    fun audioWelcome(){
+        t1 = TextToSpeech(applicationContext) { status ->
+            if (status != TextToSpeech.ERROR) {
+                // replace this Locale with whatever you want
+                val localeToUse = Locale("en", "US")
+                t1?.setLanguage(localeToUse)
+                t1?.speak("Hi,Welcome To Nature Health,How Can I help You", TextToSpeech.QUEUE_FLUSH, null,null)
+            }
+        }
+
+    }
+
     override fun resultData(data: String) {
-        txt.text=data
-        if(data=="call doctor"){
+        txt.text = data
+        if (data == "call doctor") {
             val callIntent = Intent(Intent.ACTION_CALL)
             callIntent.data = Uri.parse("tel:+919633107311")
             startActivity(callIntent)
-        }
-        else if (data=="off Wi-Fi" || data=="on Wi-Fi" || data=="off wifi" || data=="on wifi" || data=="wifi" || data=="Wi-Fi"){
+        } else if (data == "off Wi-Fi" || data == "on Wi-Fi" || data == "off wifi" || data == "on wifi" || data == "wifi" || data == "Wi-Fi") {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val panelIntent = Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
                 startActivityForResult(panelIntent, 0)
@@ -113,13 +137,11 @@ class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsLi
                     isWifiEnabled = true /*or false*/
                 }
             }
-        }
-        else if(data=="call"){
+        } else if (data == "call") {
             val intent = Intent(Intent.ACTION_DIAL)
             intent.data = Uri.parse("tel:")
             startActivity(intent)
-        }
-        else if ( data=="map" || data =="google map" || data == "open map"){
+        } else if (data == "map" || data == "google map" || data == "open map") {
             val navigationIntentUri = Uri.parse("google.navigation:q=" + 12f + "," + 2f)
             val mapIntent = Intent(Intent.ACTION_VIEW, navigationIntentUri)
             mapIntent.setPackage("com.google.android.apps.maps")
@@ -128,6 +150,7 @@ class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsLi
 
 
     }
+
 
     override fun onPermissionsChecked(p0: MultiplePermissionsReport?) {
         if (p0 != null) {
@@ -158,37 +181,40 @@ class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsLi
             p1.continuePermissionRequest()
         }
     }
+
     private fun CheckPermission() {
         Dexter.withContext(this)
             .withPermissions(
                 Manifest.permission.RECORD_AUDIO,
                 Manifest.permission.CALL_PHONE,
-                Manifest.permission.CHANGE_WIFI_STATE
+                Manifest.permission.CHANGE_WIFI_STATE,
             )
             .withListener(this)
             .check()
     }
-    fun logoutDialog(){
+
+    fun logoutDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle(R.string.logoutTitle)
 
         builder.setMessage(R.string.logoutMessage)
         builder.setIcon(android.R.drawable.ic_dialog_alert)
 
-        builder.setPositiveButton("Yes"){ _, _ ->
+        builder.setPositiveButton("Yes") { _, _ ->
             mSessionManager.appOpenStatus = false
             mSessionManager.logout()
-            val intent=Intent(this, LoginActivity::class.java)
+            val intent = Intent(this, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()
         }
 
-        builder.setNegativeButton("No"){ _, _ ->
+        builder.setNegativeButton("No") { _, _ ->
 
         }
         val alertDialog: AlertDialog = builder.create()
         alertDialog.setCancelable(false)
         alertDialog.show()
     }
+
 }
