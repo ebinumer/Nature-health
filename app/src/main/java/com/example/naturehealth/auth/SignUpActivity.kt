@@ -1,19 +1,14 @@
 package com.example.naturehealth.auth
 
-import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
-import androidx.room.RoomDatabase
 import com.example.naturehealth.R
-import com.example.naturehealth.RepoReg
+import com.example.naturehealth.repositry.RepoReg
 import com.example.naturehealth.home.MainActivity
 import com.example.naturehealth.room.RegisterDatabase
-import com.example.naturehealth.room.RegisterDatabaseDao
-import com.example.naturehealth.room.RegisterModel
 import com.example.naturehealth.session_manager.SessionManager
 import kotlinx.android.synthetic.main.activity_sign_up.*
 import kotlinx.coroutines.GlobalScope
@@ -32,22 +27,27 @@ class SignUpActivity (): AppCompatActivity() {
 
     private fun btnClick() {
         bSignUp.setOnClickListener {
-            if (etUsername.text.toString().isEmpty()) {
-                Toast.makeText(baseContext, "fill username", Toast.LENGTH_LONG)
-                    .show()
-            } else if (etEmail.text.toString().isEmpty()) {
-                Toast.makeText(baseContext, "fill email", Toast.LENGTH_LONG)
-                    .show()
-            } else if (etPassword.text.toString().isEmpty()) {
-                Toast.makeText(baseContext, "fill password", Toast.LENGTH_LONG)
-                    .show()
-            } else {
-                GlobalScope.launch {
-                    isEmailExist(etUsername.text.toString(),
-                    etEmail.text.toString(),
-                    etPassword.text.toString())
+            when {
+                etUsername.text.toString().isEmpty() -> {
+                    Toast.makeText(baseContext, "fill username", Toast.LENGTH_LONG)
+                        .show()
                 }
+                etEmail.text.toString().isEmpty() -> {
+                    Toast.makeText(baseContext, "fill email", Toast.LENGTH_LONG)
+                        .show()
+                }
+                etPassword.text.toString().isEmpty() -> {
+                    Toast.makeText(baseContext, "fill password", Toast.LENGTH_LONG)
+                        .show()
+                }
+                else -> {
+                    GlobalScope.launch {
+                        isEmailExist(etUsername.text.toString(),
+                            etEmail.text.toString(),
+                            etPassword.text.toString())
+                    }
 
+                }
             }
         }
         tvSignIn.setOnClickListener {

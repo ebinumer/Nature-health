@@ -1,9 +1,6 @@
-package com.example.naturehealth
+package com.example.naturehealth.repositry
 
-import android.app.Application
-import android.os.AsyncTask
 import androidx.lifecycle.LiveData
-import com.example.naturehealth.room.RegisterDatabase
 import com.example.naturehealth.room.RegisterDatabaseDao
 import com.example.naturehealth.room.RegisterModel
 import kotlinx.coroutines.GlobalScope

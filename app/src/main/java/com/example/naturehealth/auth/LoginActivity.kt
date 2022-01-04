@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import com.example.naturehealth.R
-import com.example.naturehealth.RepoReg
+import com.example.naturehealth.repositry.RepoReg
 import com.example.naturehealth.home.MainActivity
 import com.example.naturehealth.room.RegisterDatabase
 import com.example.naturehealth.session_manager.SessionManager
