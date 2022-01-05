@@ -7,7 +7,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class RepoReg private constructor(private val userAccountDao: RegisterDatabaseDao) {
-    private val userAccountLiveData: LiveData<RegisterModel>? = null
+//    private val userAccountLiveData: LiveData<RegisterModel>? = null
 
      fun isValidAccount(email: String, password: String): Boolean {
 
@@ -15,6 +15,7 @@ class RepoReg private constructor(private val userAccountDao: RegisterDatabaseDa
             return userAccount?.password == password
 
     }
+
     fun isEmailExist(email: String): Boolean {
 
         val userAccount = userAccountDao.getUser(email)

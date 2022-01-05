@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsLi
     lateinit var wifiManager: WifiManager
     private var grantallpermission = false
     var t1: TextToSpeech? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)

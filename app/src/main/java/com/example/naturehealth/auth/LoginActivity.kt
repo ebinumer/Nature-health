@@ -21,7 +21,7 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         repoReg = RepoReg.getInstance(RegisterDatabase.getInstance(this).registerDatabaseDao)
-      mSessionManager= SessionManager(this)
+        mSessionManager= SessionManager(this)
         btnClick()
     }
 
