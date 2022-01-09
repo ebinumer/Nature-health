@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsLi
     lateinit var wifiManager: WifiManager
     private var grantallpermission = false
     var t1: TextToSpeech? = null
+    var clicked=false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,11 +60,10 @@ class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsLi
 
     private fun btnClick() {
         btn_start.setOnClickListener {
-            val amanager = getSystemService(AUDIO_SERVICE) as AudioManager
-            amanager.setStreamMute(AudioManager.STREAM_NOTIFICATION, true)
-            startService(Intent(this, SpeechService::class.java))
-            Toast.makeText(this, "app started", Toast.LENGTH_LONG).show()
-            onBackPressed()
+           clicked=true
+        }
+        btn_stop.setOnClickListener {
+            clicked=false
         }
 
 
@@ -124,29 +124,34 @@ class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsLi
 
     override fun resultData(data: String) {
         txt.text = data
-        if (data == "call doctor") {
-            val callIntent = Intent(Intent.ACTION_CALL)
-            callIntent.data = Uri.parse("tel:+919633107311")
-            startActivity(callIntent)
-        } else if (data == "off Wi-Fi" || data == "on Wi-Fi" || data == "off wifi" || data == "on wifi" || data == "wifi" || data == "Wi-Fi") {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val panelIntent = Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
-                startActivityForResult(panelIntent, 0)
-            } else {
-                // add appropriate permissions to AndroidManifest file (see https://stackoverflow.com/questions/3930990/android-how-to-enable-disable-wifi-or-internet-connection-programmatically/61289575)
-                (this.applicationContext?.getSystemService(Context.WIFI_SERVICE) as? WifiManager)?.apply {
-                    isWifiEnabled = true /*or false*/
+        when(data){
+            "call doctor"->{
+                val callIntent = Intent(Intent.ACTION_CALL)
+                callIntent.data = Uri.parse("tel:+91123456789")
+                startActivity(callIntent)
+            }
+            "off Wi-Fi","on Wi-Fi","off wifi","on wifi","wifi","Wi-Fi"->{
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val panelIntent = Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
+                    startActivityForResult(panelIntent, 0)
+                } else {
+                    // add appropriate permissions to AndroidManifest file (see https://stackoverflow.com/questions/3930990/android-how-to-enable-disable-wifi-or-internet-connection-programmatically/61289575)
+                    (this.applicationContext?.getSystemService(Context.WIFI_SERVICE) as? WifiManager)?.apply {
+                        isWifiEnabled = true /*or false*/
+                    }
                 }
             }
-        } else if (data == "call") {
-            val intent = Intent(Intent.ACTION_DIAL)
-            intent.data = Uri.parse("tel:")
-            startActivity(intent)
-        } else if (data == "map" || data == "google map" || data == "open map") {
-            val navigationIntentUri = Uri.parse("google.navigation:q=" + 12f + "," + 2f)
-            val mapIntent = Intent(Intent.ACTION_VIEW, navigationIntentUri)
-            mapIntent.setPackage("com.google.android.apps.maps")
-            startActivity(mapIntent)
+            "call"->{
+                val intent = Intent(Intent.ACTION_DIAL)
+                intent.data = Uri.parse("tel:")
+                startActivity(intent)
+            }
+            "map","google map","open map"->{
+                val navigationIntentUri = Uri.parse("google.navigation:q=" + 12f + "," + 2f)
+                val mapIntent = Intent(Intent.ACTION_VIEW, navigationIntentUri)
+                mapIntent.setPackage("com.google.android.apps.maps")
+                startActivity(mapIntent)
+            }
         }
 
 
@@ -218,4 +223,13 @@ class MainActivity : AppCompatActivity(), ResultInterface, MultiplePermissionsLi
         alertDialog.show()
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        if(clicked){
+            val amanager = getSystemService(AUDIO_SERVICE) as AudioManager
+            amanager.setStreamMute(AudioManager.STREAM_NOTIFICATION, true)
+            startService(Intent(this, SpeechService::class.java))
+            Toast.makeText(this, "app started", Toast.LENGTH_LONG).show()
+        }
+    }
 }

@@ -71,7 +71,7 @@ class SpeechService  : Service(), ResultInterface {
 
     override fun resultData(data: String) {
         Log.e("speech", "hit here====$data")
-        if (data == "start") {
+        if (data == "open") {
             Log.e("speech", "hit here====$data")
             (mTimer as CountDownTimer).cancel()
             mSpeechRecognizer.stopListening()
